@@ -1,6 +1,9 @@
 let home =
   <html>
   <body>
+    <div>
+    <span id="username" contenteditable="true" title="Click to edit"> Write your username</span>
+    </div>
     <form>
       <input type="submit" value="Send">
       <input type="text" id="message" size="64" autofocus>
@@ -9,6 +12,7 @@ let home =
       let message = document.getElementById("message");
       let chat = document.querySelector("body");
       let socket = new WebSocket("ws://" + window.location.host + "/websocket");
+      let username = document.getElementById("username")
 
       socket.onmessage = function (event) {
         let item = document.createElement("div");
@@ -22,7 +26,7 @@ let home =
         if (!message.value)
           return false;
 
-        socket.send(message.value);
+        socket.send(username.textContent + ": " + message.value);
         message.value = "";
         return false;
       };
