@@ -1,0 +1,4 @@
+#!/bin/sh
+export ESY__NODE_BIN_PATH='/Users/busayobamigbade/Desktop/Chatty/_esy/default/bin'
+exec '/opt/homebrew/Cellar/node/21.1.0/bin/node' -r '/Users/busayobamigbade/Desktop/Chatty/_esy/default/pnp.js' "$@"
+              
