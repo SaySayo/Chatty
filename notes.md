@@ -13,3 +13,6 @@ Simnplest possible POC:
 
 Features to add on top of that:
 - Lots of cool stuff!!! :tada:
+
+Next Todo
+- Add username logic to server side.
