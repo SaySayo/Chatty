@@ -1,10 +1,12 @@
 let home =
   <html>
   <body>
-    <div>
-    <span id="username" contenteditable="true" title="Click to edit"> Write your username</span>
-    </div>
-    <form>
+    <form id="username-form">
+      <span>Write your username: </span>
+      <input id="username" type="text">
+      <input type="submit" value="Send">
+    </form>
+    <form id="message-form">
       <input type="submit" value="Send">
       <input type="text" id="message" size="64" autofocus>
     </form>
@@ -12,7 +14,7 @@ let home =
       let message = document.getElementById("message");
       let chat = document.querySelector("body");
       let socket = new WebSocket("ws://" + window.location.host + "/websocket");
-      let username = document.getElementById("username")
+      let username = document.getElementById("username");
 
       socket.onmessage = function (event) {
         let item = document.createElement("div");
@@ -20,13 +22,23 @@ let home =
         chat.appendChild(item);
       };
 
-      document.querySelector("form").onsubmit = function () {
+      document.getElementById("username-form").onsubmit = function () {
+        if (socket.readyState != WebSocket.OPEN)
+          return false;
+        if (!username.value)
+          return false;
+
+        socket.send("usr: " + username.value);
+        return false;
+      };
+
+      document.getElementById("message-form").onsubmit = function () {
         if (socket.readyState != WebSocket.OPEN)
           return false;
         if (!message.value)
           return false;
 
-        socket.send(username.textContent + ": " + message.value);
+        socket.send("msg: " + message.value);
         message.value = "";
         return false;
       };
@@ -54,11 +66,19 @@ let send message =
 
 let handle_client client =
   let client_id = track client in
+  let username = ref "anonymous" in
   let rec loop () =
     match%lwt Dream.receive client with
     | Some message ->
-      let%lwt () = send message in
+      (match String.split_on_char ':' message with 
+      | ["usr"; name] -> username := name;
       loop ()
+      | ["msg"; message] -> 
+        let%lwt () = send (!username ^ ": " ^ message) in
+        loop ()
+      | _ -> Dream.log "No username or message detected";
+        loop ()
+      ) 
     | None ->
       forget client_id;
       Dream.close_websocket client
