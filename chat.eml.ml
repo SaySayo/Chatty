@@ -76,8 +76,8 @@ let handle_client client =
       | ["msg"; message] -> 
         let%lwt () = send (!username ^ ": " ^ message) in
         loop ()
-      | _ -> loop ()
-        (* Todo *)
+      | _ -> Dream.log "No username or message detected";
+        loop ()
       ) 
     | None ->
       forget client_id;
